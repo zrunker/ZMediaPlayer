@@ -47,6 +47,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 设置音量，参数分别表示左右声道声音大小，取值范围为0~1
         mediaPlayer.setVolume(0.5f, 0.5f);
 
+        // 设置是否循环播放
+        mediaPlayer.setLooping(false);
+
         // 设置设备进入锁状态模式-可在后台播放或者缓冲音乐-CPU一直工作
         mediaPlayer.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK);
 
