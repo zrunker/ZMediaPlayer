@@ -172,13 +172,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        // 异步准备完成监听
+        // 异步准备Prepared完成监听
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
                 // 开始播放
                 mediaPlayer.start();
                 updateDescTv();
+            }
+        });
+
+        // 设置进度调整完成SeekComplete监听，主要是配合seekTo(int)方法
+        mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+            @Override
+            public void onSeekComplete(MediaPlayer mediaPlayer) {
+
             }
         });
 
