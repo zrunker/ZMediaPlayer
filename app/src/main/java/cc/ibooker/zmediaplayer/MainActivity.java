@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isPause = false;
     private int current_item = 0;
     private BroadcastReceiver broadcastReceiver;
+    private WifiManager.WifiLock wifiLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initView();
 
+        initMediaPlayer();
+
+//        // 检索媒体文件
+//        ContentResolver contentResolver = getContentResolver();
+//        Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+//        Cursor cursor = contentResolver.query(uri, null, null, null, null);
+//        if (cursor == null) {
+//            // query failed, handle error.
+//        } else if (!cursor.moveToFirst()) {
+//            // no media on the device
+//        } else {
+//            int titleColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
+//            int idColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
+//            do {
+//                long thisId = cursor.getLong(idColumn);
+//                String thisTitle = cursor.getString(titleColumn);
+//                // ...process entry...
+//            } while (cursor.moveToNext());
+//        }
+//        try {
+//            long id = /* retrieve it from somewhere */;
+//            Uri contentUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, thisId);
+//            mediaPlayer = new MediaPlayer();
+//            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//            mediaPlayer.setDataSource(getApplicationContext(), contentUri);
+//            // ...prepare and start...
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+    }
+
+    // 初始化MediaPlayer
+    private void initMediaPlayer() {
         if (mediaPlayer == null)
             mediaPlayer = new MediaPlayer();
 
@@ -52,9 +87,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // 设置设备进入锁状态模式-可在后台播放或者缓冲音乐-CPU一直工作
         mediaPlayer.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK);
+//        // 当播放的时候一直让屏幕变亮
+//        mediaPlayer.setScreenOnWhilePlaying(true);
 
         // 如果你使用wifi播放流媒体，你还需要持有wifi锁
-        WifiManager.WifiLock wifiLock = ((WifiManager) getApplicationContext()
+        wifiLock = ((WifiManager) getApplicationContext()
                 .getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "wifilock");
         wifiLock.acquire();
@@ -64,74 +101,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // 征对于Android 8.0
             AudioFocusRequest audioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-                    .setOnAudioFocusChangeListener(new AudioManager.OnAudioFocusChangeListener() {
-                        @Override
-                        public void onAudioFocusChange(int focusChange) {
-                            switch (focusChange) {
-                                case AudioManager.AUDIOFOCUS_GAIN:
-                                    // 获取audio focus
-                                    if (mediaPlayer == null)
-                                        mediaPlayer = new MediaPlayer();
-                                    else if (!mediaPlayer.isPlaying())
-                                        mediaPlayer.start();
-                                    mediaPlayer.setVolume(1.0f, 1.0f);
-                                    break;
-                                case AudioManager.AUDIOFOCUS_LOSS:
-                                    // 失去audio focus很长一段时间，必须停止所有的audio播放，清理资源
-                                    if (mediaPlayer.isPlaying())
-                                        mediaPlayer.stop();
-                                    mediaPlayer.release();
-                                    mediaPlayer = null;
-                                    break;
-                                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                                    // 暂时失去audio focus，但是很快就会重新获得，在此状态应该暂停所有音频播放，但是不能清除资源
-                                    if (mediaPlayer.isPlaying())
-                                        mediaPlayer.pause();
-                                    break;
-                                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                                    // 暂时失去 audio focus，但是允许持续播放音频(以很小的声音)，不需要完全停止播放。
-                                    if (mediaPlayer.isPlaying())
-                                        mediaPlayer.setVolume(0.1f, 0.1f);
-                                    break;
-                            }
-                        }
-                    }).build();
+                    .setOnAudioFocusChangeListener(focusChangeListener).build();
             audioFocusRequest.acceptsDelayedFocusGain();
             audioManager.requestAudioFocus(audioFocusRequest);
         } else {
             // 小于Android 8.0
-            int result = audioManager.requestAudioFocus(new AudioManager.OnAudioFocusChangeListener() {
-                @Override
-                public void onAudioFocusChange(int focusChange) {
-                    switch (focusChange) {
-                        case AudioManager.AUDIOFOCUS_GAIN:
-                            // 获取audio focus
-                            if (mediaPlayer == null)
-                                mediaPlayer = new MediaPlayer();
-                            else if (!mediaPlayer.isPlaying())
-                                mediaPlayer.start();
-                            mediaPlayer.setVolume(1.0f, 1.0f);
-                            break;
-                        case AudioManager.AUDIOFOCUS_LOSS:
-                            // 失去audio focus很长一段时间，必须停止所有的audio播放，清理资源
-                            if (mediaPlayer.isPlaying())
-                                mediaPlayer.stop();
-                            mediaPlayer.release();
-                            mediaPlayer = null;
-                            break;
-                        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                            // 暂时失去audio focus，但是很快就会重新获得，在此状态应该暂停所有音频播放，但是不能清除资源
-                            if (mediaPlayer.isPlaying())
-                                mediaPlayer.pause();
-                            break;
-                        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                            // 暂时失去 audio focus，但是允许持续播放音频(以很小的声音)，不需要完全停止播放。
-                            if (mediaPlayer.isPlaying())
-                                mediaPlayer.setVolume(0.1f, 0.1f);
-                            break;
-                    }
-                }
-            }, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+            int result = audioManager.requestAudioFocus(focusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
             if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 // could not get audio focus.
             }
@@ -192,40 +167,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-
-//        // 检索媒体文件
-//        ContentResolver contentResolver = getContentResolver();
-//        Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-//        Cursor cursor = contentResolver.query(uri, null, null, null, null);
-//        if (cursor == null) {
-//            // query failed, handle error.
-//        } else if (!cursor.moveToFirst()) {
-//            // no media on the device
-//        } else {
-//            int titleColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
-//            int idColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
-//            do {
-//                long thisId = cursor.getLong(idColumn);
-//                String thisTitle = cursor.getString(titleColumn);
-//                // ...process entry...
-//            } while (cursor.moveToNext());
-//        }
-//        try {
-//            long id = /* retrieve it from somewhere */;
-//            Uri contentUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, thisId);
-//            mediaPlayer = new MediaPlayer();
-//            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//            mediaPlayer.setDataSource(getApplicationContext(), contentUri);
-//            // ...prepare and start...
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
     }
+
+    AudioManager.OnAudioFocusChangeListener focusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            switch (focusChange) {
+                case AudioManager.AUDIOFOCUS_GAIN:
+                    // 获取audio focus
+                    if (mediaPlayer == null)
+                        mediaPlayer = new MediaPlayer();
+                    else if (!mediaPlayer.isPlaying())
+                        mediaPlayer.start();
+                    mediaPlayer.setVolume(1.0f, 1.0f);
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS:
+                    // 失去audio focus很长一段时间，必须停止所有的audio播放，清理资源
+                    if (mediaPlayer.isPlaying())
+                        mediaPlayer.stop();
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                    // 暂时失去audio focus，但是很快就会重新获得，在此状态应该暂停所有音频播放，但是不能清除资源
+                    if (mediaPlayer.isPlaying())
+                        mediaPlayer.pause();
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                    // 暂时失去 audio focus，但是允许持续播放音频(以很小的声音)，不需要完全停止播放。
+                    if (mediaPlayer.isPlaying())
+                        mediaPlayer.setVolume(0.1f, 0.1f);
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onStop() {
         super.onStop();
+        // 释放锁
+        wifiLock.release();
+        // 释放mediaPlayer
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -288,6 +270,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // 播放
     private void play() {
         try {
+            if (mediaPlayer == null)
+                initMediaPlayer();
             if (isPause) {
                 mediaPlayer.start();
                 updateDescTv();
