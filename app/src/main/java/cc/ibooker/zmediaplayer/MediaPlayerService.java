@@ -17,7 +17,7 @@ public class MediaPlayerService extends Service {
         super.onCreate();
         // 如果是放在raw文件中
         mediaPlayer = MediaPlayer.create(this, R.raw.sound_music);
-        
+
 //        // 如果是放在assest文件中
 //        try {
 //            AssetFileDescriptor fd = getAssets().openFd("sound_music.mp3");
