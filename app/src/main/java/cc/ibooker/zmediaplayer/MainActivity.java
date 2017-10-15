@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isPause = false;
     private int current_item = 0;
     private BroadcastReceiver broadcastReceiver;
-    private WifiManager.WifiLock wifiLock;
+//    private WifiManager.WifiLock wifiLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initMediaPlayer();
 
-//        // 检索媒体文件
+//        // 通过ContentResolver来获取外部媒体文件
 //        ContentResolver contentResolver = getContentResolver();
 //        Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 //        Cursor cursor = contentResolver.query(uri, null, null, null, null);
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                // ...process entry...
 //            } while (cursor.moveToNext());
 //        }
+//        // 配合MediaPlayer使用
 //        try {
 //            long id = /* retrieve it from somewhere */;
 //            Uri contentUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, thisId);
@@ -85,16 +87,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 设置是否循环播放
         mediaPlayer.setLooping(false);
 
-        // 设置设备进入锁状态模式-可在后台播放或者缓冲音乐-CPU一直工作
-        mediaPlayer.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK);
+//        // 设置设备进入锁状态模式-可在后台播放或者缓冲音乐-CPU一直工作
+//        mediaPlayer.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK);
 //        // 当播放的时候一直让屏幕变亮
 //        mediaPlayer.setScreenOnWhilePlaying(true);
 
-        // 如果你使用wifi播放流媒体，你还需要持有wifi锁
-        wifiLock = ((WifiManager) getApplicationContext()
-                .getSystemService(Context.WIFI_SERVICE))
-                .createWifiLock(WifiManager.WIFI_MODE_FULL, "wifilock");
-        wifiLock.acquire();
+//        // 如果你使用wifi播放流媒体，你还需要持有wifi锁
+//        wifiLock = ((WifiManager) getApplicationContext()
+//                .getSystemService(Context.WIFI_SERVICE))
+//                .createWifiLock(WifiManager.WIFI_MODE_FULL, "wifilock");
+//        wifiLock.acquire();
 
         // 处理音频焦点-处理多个程序会来竞争音频输出设备
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -117,12 +119,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if ("BR_AUDIO_BECOMING_NOISY".equals(intent.getAction())) {
+                if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
                     // 拔掉耳机时候进行相应的操作
                 }
             }
         };
-        registerReceiver(broadcastReceiver, new IntentFilter("BR_AUDIO_BECOMING_NOISY"));
+        registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 
         // 设置播放错误监听
         mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -206,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStop() {
         super.onStop();
         // 释放锁
-        wifiLock.release();
+//        wifiLock.release();
         // 释放mediaPlayer
         if (mediaPlayer != null) {
             mediaPlayer.stop();
@@ -219,6 +221,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(broadcastReceiver);
+        if (executorService != null)
+            executorService.shutdownNow();
     }
 
     // 初始化控件
