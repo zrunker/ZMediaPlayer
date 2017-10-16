@@ -16,7 +16,7 @@
 
     <LinearLayout
         android:id="@+id/layout_desc"
-        android:layout_width="110dp"
+        android:layout_width="105dp"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_toEndOf="@id/image"
@@ -56,6 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:padding="10dp"
             android:text="暂停"
             android:textColor="#555" />
 
@@ -65,6 +66,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:padding="10dp"
             android:text="下一首"
             android:textColor="#555" />
 
@@ -74,6 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:padding="10dp"
             android:text="取消"
             android:textColor="#555" />
     </LinearLayout>

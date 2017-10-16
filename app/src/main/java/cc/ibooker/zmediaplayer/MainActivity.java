@@ -8,13 +8,10 @@ import android.content.IntentFilter;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PowerManager;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -27,8 +24,8 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private MediaPlayer mediaPlayer;
-    private String[] musics = {"http://ibooker.cc/ibooker/musics/1234.mp3",
-            "http://ibooker.cc/ibooker/musics/2345.mp3"}; // 设置音频资源（网络）
+    private String[] musics = {"http://ibooker.cc/ibooker/file_packet/musics/1234.mp3",
+            "http://ibooker.cc/ibooker/file_packet/musics/2345.mp3"}; // 设置音频资源（网络）
     private TextView descTv;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private boolean isPause = false;
@@ -44,7 +41,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
         initMediaPlayer();
 
-        startMusicService(false);
+        // 开启服务
+        startMusicService(true);
 
 //        // 通过ContentResolver来获取外部媒体文件
 //        ContentResolver contentResolver = getContentResolver();
@@ -209,7 +207,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStop() {
         super.onStop();
         // 释放锁
-//        wifiLock.release();
+//        if (wifiLock != null && wifiLock.isHeld())
+//          wifiLock.release();
         // 释放mediaPlayer
         if (mediaPlayer != null) {
             mediaPlayer.stop();
