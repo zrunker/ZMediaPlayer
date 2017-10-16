@@ -42,8 +42,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         initView();
-
         initMediaPlayer();
+
+        startMusicService(false);
 
 //        // 通过ContentResolver来获取外部媒体文件
 //        ContentResolver contentResolver = getContentResolver();
