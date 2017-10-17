@@ -94,16 +94,6 @@ public class MediaplayerBinderService extends Service {
         startForeground(NOTIFICATION_PENDINGINTENT_ID, builder.build());
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("MediaPlayerBService", "onStartCommand");
-        // 得到键值对
-        boolean playing = intent.getBooleanExtra("playing", false);
-        if (playing)
-            play();
-        return super.onStartCommand(intent, flags, startId);
-    }
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
