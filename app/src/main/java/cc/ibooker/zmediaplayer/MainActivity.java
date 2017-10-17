@@ -36,7 +36,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BroadcastReceiver broadcastReceiver;
 //    private WifiManager.WifiLock wifiLock;
 
-    private MediplayerBinderService mediplayerBinderService;
+    private MediaplayerBinderService bindService;
+    private boolean isBindService = false;
+    private BroadcastReceiver playerReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,10 +49,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initMediaPlayer();
 
         // 开启服务
-        startMusicService(true);
+//        startMusicService(true);
 
         // 绑定服务-onCreate->onBind->onUnbind->onDestroy
         bindService();
+        // 注册广播
+        playerReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d("action", intent.getAction());
+                switch (intent.getAction()) {
+                    case "nextMusic1":// 下一首
+                        bindService.nextMusic();
+                        break;
+                    case "playMusic1":// 暂停/播放
+                        bindService.playMusic();
+                        break;
+                    case "stopMusic1":// 停止
+                        bindService.onDestroy();
+                        unBind();
+                        break;
+                }
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("nextMusic1");
+        intentFilter.addAction("playMusic1");
+        intentFilter.addAction("stopMusic1");
+        registerReceiver(playerReceiver, intentFilter);
+
 
 //        // 通过ContentResolver来获取外部媒体文件
 //        ContentResolver contentResolver = getContentResolver();
@@ -228,7 +255,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(broadcastReceiver);
+        if (playerReceiver != null)
+            unregisterReceiver(playerReceiver);
+        if (broadcastReceiver != null)
+            unregisterReceiver(broadcastReceiver);
         if (executorService != null)
             executorService.shutdownNow();
     }
@@ -254,27 +284,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.tv_pre:// 上一首
                 descTv.setText("上一首");
-                preMusic();
+//                preMusic();
+
+                bindService.preMusic();
                 break;
             case R.id.tv_pause:// 暂停
                 descTv.setText("暂停");
-                if (mediaPlayer.isPlaying()) {
-                    isPause = true;
-                    mediaPlayer.pause();
-                }
+//                if (mediaPlayer.isPlaying()) {
+//                    isPause = true;
+//                    mediaPlayer.pause();
+//                }
+
+                bindService.pause();
                 break;
             case R.id.tv_start:// 播放
                 descTv.setText("播放");
-                play();
+//                play();
+
+                bindService.play();
                 break;
             case R.id.tv_stop:// 停止
                 descTv.setText("停止");
-                if (mediaPlayer.isPlaying())
-                    mediaPlayer.reset();
+//                if (mediaPlayer.isPlaying())
+//                    mediaPlayer.reset();
+
+                bindService.stop();
+                unBind();
                 break;
             case R.id.tv_next:// 下一首
                 descTv.setText("下一首");
-                nextMusic();
+//                nextMusic();
+
+                bindService.nextMusic();
                 break;
         }
     }
@@ -373,16 +414,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // stopService(new Intent(MainActivity.this, MediaPlayerService.class));
     }
 
+
+    // 绑定服务
     private void bindService() {
-        Intent intent = new Intent(MainActivity.this, MediplayerBinderService.class);
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        if (!isBindService) {
+            Intent intent = new Intent(MainActivity.this, MediaplayerBinderService.class);
+            /*
+             * Service：Service的桥梁
+             * ServiceConnection：处理链接状态
+             * flags：BIND_AUTO_CREATE, BIND_DEBUG_UNBIND, BIND_NOT_FOREGROUND, BIND_ABOVE_CLIENT, BIND_ALLOW_OOM_MANAGEMENT, or BIND_WAIVE_PRIORITY.
+             */
+            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
     }
 
+    // 解除绑定
     private void unBind() {
-//        if(flag == true){
-        unbindService(serviceConnection);
-//            flag = false;
-//        }
+        if (isBindService) {
+            unbindService(serviceConnection);
+            isBindService = false;
+        }
     }
 
     /**
@@ -390,19 +441,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private ServiceConnection serviceConnection = new ServiceConnection() {
         /**
-         * 点击开启按钮，会调用serviceConnection对象中的onServiceConnected方法。
-         * 向该方法传递一个IBinder对象
-         * ，其实际是从服务本身创建和提交的。这个IBinder对象将是SimpleAudioServiceBinder类型，我们将在服务中创建它。
-         * 它将有一个方法用于返回我们的服务本身，成为getService，这样我们就可以对该方法返回的对象直接进行操作。
+         * 该方法用于处理与服务已连接时的情况。
          */
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-//            simpleAudioService = (binder).getService();
-
-            MediplayerBinderService.MediaplayerBinder binder = (MediplayerBinderService.MediaplayerBinder) service;
-            MediplayerBinderService bindService = (MediplayerBinderService) binder.getService();
-//            bindService.MyMethod();
-//            flag = true;
+            MediaplayerBinderService.MediaplayerBinder binder = (MediaplayerBinderService.MediaplayerBinder) service;
+            bindService = (MediaplayerBinderService) binder.getService();
+            isBindService = true;
         }
 
         /**
@@ -410,7 +455,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          */
         @Override
         public void onServiceDisconnected(ComponentName name) {
-//            simpleAudioService = null;
+            bindService = null;
         }
 
     };

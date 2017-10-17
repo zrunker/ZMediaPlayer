@@ -3,10 +3,8 @@ package cc.ibooker.zmediaplayer;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
@@ -21,7 +19,7 @@ import android.widget.RemoteViews;
  * 绑定服务
  * Created by 邹峰立 on 2017/10/17.
  */
-public class MediplayerBinderService extends Service {
+public class MediaplayerBinderService extends Service {
     private static final int DELETE_PENDINGINTENT_REQUESTCODE = 1022;
     private static final int CONTENT_PENDINGINTENT_REQUESTCODE = 1023;
     private static final int NEXT_PENDINGINTENT_REQUESTCODE = 1024;
@@ -35,7 +33,6 @@ public class MediplayerBinderService extends Service {
     private NotificationManager notificationManager;
     private NotificationCompat.Builder builder;
     private RemoteViews views;
-    private BroadcastReceiver playerReceiver;
 
     private String[] musics = {"http://ibooker.cc/ibooker/file_packet/musics/1234.mp3",
             "http://ibooker.cc/ibooker/file_packet/musics/2345.mp3"}; // 设置音频资源（网络）
@@ -46,6 +43,9 @@ public class MediplayerBinderService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        Log.d("MediaPlayerBService", "OnCreate");
+
+        // 初始化MediaPlayer
         initMediaPlayer();
 
         // 设置点击通知结果
@@ -58,17 +58,17 @@ public class MediplayerBinderService extends Service {
         views = new RemoteViews(getPackageName(), R.layout.layout_mediaplayer);
 
         // 下一首
-        Intent intentNext = new Intent("nextMusic");
+        Intent intentNext = new Intent("nextMusic1");
         PendingIntent nextPendingIntent = PendingIntent.getBroadcast(this, NEXT_PENDINGINTENT_REQUESTCODE, intentNext, PendingIntent.FLAG_CANCEL_CURRENT);
         views.setOnClickPendingIntent(R.id.tv_next, nextPendingIntent);
 
         // 暂停/播放
-        Intent intentPlay = new Intent("playMusic");
+        Intent intentPlay = new Intent("playMusic1");
         PendingIntent playPendingIntent = PendingIntent.getBroadcast(this, PLAY_PENDINGINTENT_REQUESTCODE, intentPlay, PendingIntent.FLAG_CANCEL_CURRENT);
         views.setOnClickPendingIntent(R.id.tv_pause, playPendingIntent);
 
         // 停止
-        Intent intentStop = new Intent("stopMusic");
+        Intent intentStop = new Intent("stopMusic1");
         PendingIntent stopPendingIntent = PendingIntent.getBroadcast(this, STOP_PENDINGINTENT_REQUESTCODE, intentStop, PendingIntent.FLAG_CANCEL_CURRENT);
         views.setOnClickPendingIntent(R.id.tv_cancel, stopPendingIntent);
 
@@ -92,40 +92,11 @@ public class MediplayerBinderService extends Service {
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         // 前台服务
         startForeground(NOTIFICATION_PENDINGINTENT_ID, builder.build());
-
-        // 注册广播
-        playerReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.d("action", intent.getAction());
-                switch (intent.getAction()) {
-                    case "nextMusic":// 下一首
-                        nextMusic();
-                        break;
-                    case "playMusic":// 暂停/播放
-                        if (mediaPlayer != null) {
-                            if (mediaPlayer.isPlaying()) {
-                                mediaPlayer.pause();
-                            } else {
-                                mediaPlayer.start();
-                            }
-                        }
-                        break;
-                    case "stopMusic":// 停止
-                        onDestroy();
-                        break;
-                }
-            }
-        };
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("nextMusic");
-        intentFilter.addAction("playMusic");
-        intentFilter.addAction("stopMusic");
-        registerReceiver(playerReceiver, intentFilter);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d("MediaPlayerBService", "onStartCommand");
         // 得到键值对
         boolean playing = intent.getBooleanExtra("playing", false);
         if (playing)
@@ -136,17 +107,20 @@ public class MediplayerBinderService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d("MediaPlayerBService", "onBind");
         return mediaplayerBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
+        Log.d("MediaPlayerBService", "onUnbind");
         return super.onUnbind(intent);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d("MediaPlayerBService", "onDestroy");
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -154,12 +128,6 @@ public class MediplayerBinderService extends Service {
         }
         if (wifiLock != null && wifiLock.isHeld())
             wifiLock.release();
-        try {
-            if (playerReceiver != null)
-                unregisterReceiver(playerReceiver);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         // 取消Notification
         if (notificationManager != null)
             notificationManager.cancel(NOTIFICATION_PENDINGINTENT_ID);
@@ -216,27 +184,50 @@ public class MediplayerBinderService extends Service {
         });
     }
 
-    // 播发
-    private void play() {
+    // 播放
+    public void play() {
         try {
-            // 重置mediaPlayer
-            mediaPlayer.reset();
-            // 重新加载音频资源
-            mediaPlayer.setDataSource(musics[current_item]);
-            // 准备播放（异步）
-            mediaPlayer.prepareAsync();
+//            if (mediaPlayer == null)
+//                initMediaPlayer();
+//            if (isPause) {
+//                mediaPlayer.start();
+//                isPause = false;
+//            } else {
+                // 重置mediaPlayer
+                mediaPlayer.reset();
+                // 重新加载音频资源
+                mediaPlayer.setDataSource(musics[current_item]);
+                // 准备播放（异步）
+                mediaPlayer.prepareAsync();
+//            }
+
+//            updateNotification();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     // 暂停
-    private void pause() {
+    public void pause() {
         mediaPlayer.pause();
+        isPause = true;
+    }
+
+    // Notification调用
+    public void playMusic() {
+        if (mediaPlayer != null) {
+            if (!isPause) {
+                mediaPlayer.pause();
+                isPause = true;
+            } else {
+                mediaPlayer.start();
+                isPause = false;
+            }
+        }
     }
 
     // 下一首
-    private void nextMusic() {
+    public void nextMusic() {
         current_item++;
         if (current_item >= musics.length)
             current_item = 0;
@@ -244,7 +235,7 @@ public class MediplayerBinderService extends Service {
     }
 
     // 上一首
-    private void preMusic() {
+    public void preMusic() {
         current_item--;
         if (current_item < 0)
             current_item = musics.length - 1;
@@ -252,8 +243,10 @@ public class MediplayerBinderService extends Service {
     }
 
     // 停止
-    private void stop() {
-        mediaPlayer.stop();
+    public void stop() {
+//        mediaPlayer.stop();
+        if (mediaPlayer.isPlaying())
+            mediaPlayer.reset();
     }
 
     // 更新Notification
@@ -272,12 +265,12 @@ public class MediplayerBinderService extends Service {
         notificationManager.notify(NOTIFICATION_PENDINGINTENT_ID, builder.build());
     }
 
-    public class MediaplayerBinder extends Binder {
+    // 定义Binder类-当然也可以写成外部类
+    private MediaplayerBinder mediaplayerBinder = new MediaplayerBinder();
 
+    public class MediaplayerBinder extends Binder {
         public Service getService() {
-            return MediplayerBinderService.this;
+            return MediaplayerBinderService.this;
         }
     }
-
-    private MediaplayerBinder mediaplayerBinder = new MediaplayerBinder();
 }
