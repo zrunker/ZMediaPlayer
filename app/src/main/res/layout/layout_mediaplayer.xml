@@ -80,4 +80,5 @@
             android:text="取消"
             android:textColor="#555" />
     </LinearLayout>
+
 </RelativeLayout>
