@@ -187,21 +187,21 @@ public class MediaplayerBinderService extends Service {
     // 播放
     public void play() {
         try {
-//            if (mediaPlayer == null)
-//                initMediaPlayer();
-//            if (isPause) {
-//                mediaPlayer.start();
-//                isPause = false;
-//            } else {
+            if (mediaPlayer == null)
+                initMediaPlayer();
+            if (isPause) {
+                mediaPlayer.start();
+                isPause = false;
+            } else {
                 // 重置mediaPlayer
                 mediaPlayer.reset();
                 // 重新加载音频资源
                 mediaPlayer.setDataSource(musics[current_item]);
                 // 准备播放（异步）
                 mediaPlayer.prepareAsync();
-//            }
+            }
 
-//            updateNotification();
+            updateNotification();
         } catch (Exception e) {
             e.printStackTrace();
         }
