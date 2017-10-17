@@ -9,22 +9,19 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.net.wifi.WifiManager;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.widget.RemoteViews;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 /**
- * 前台服务
- * created by 邹峰立
+ * 绑定服务
+ * Created by 邹峰立 on 2017/10/17.
  */
-public class MediaPlayerService extends Service {
+public class MediplayerBinderService extends Service {
     private static final int DELETE_PENDINGINTENT_REQUESTCODE = 1022;
     private static final int CONTENT_PENDINGINTENT_REQUESTCODE = 1023;
     private static final int NEXT_PENDINGINTENT_REQUESTCODE = 1024;
@@ -32,13 +29,13 @@ public class MediaPlayerService extends Service {
     private static final int STOP_PENDINGINTENT_REQUESTCODE = 1026;
     private static final int NOTIFICATION_PENDINGINTENT_ID = 1;// 是用来标记Notifaction，可用于更新，删除Notifition
 
+    private MediaPlayer mediaPlayer;
+    private WifiManager.WifiLock wifiLock;
+
     private NotificationManager notificationManager;
     private NotificationCompat.Builder builder;
     private RemoteViews views;
     private BroadcastReceiver playerReceiver;
-
-    private MediaPlayer mediaPlayer;
-    private WifiManager.WifiLock wifiLock;
 
     private String[] musics = {"http://ibooker.cc/ibooker/file_packet/musics/1234.mp3",
             "http://ibooker.cc/ibooker/file_packet/musics/2345.mp3"}; // 设置音频资源（网络）
@@ -49,83 +46,13 @@ public class MediaPlayerService extends Service {
     public void onCreate() {
         super.onCreate();
 
-
-//        // 如果是放在assets文件中
-//        try {
-//            AssetFileDescriptor fd = getAssets().openFd("sound_music.mp3");
-//            mediaPlayer = new MediaPlayer();
-//            mediaPlayer.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(), fd.getLength());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-//        // 如果是放在SD卡中
-//        try {
-//            mediaPlayer = new MediaPlayer();
-//            String path = "/sdcard/sound_music.mp3";
-//            mediaPlayer.setDataSource(path);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-//        // 如果是放在raw文件中
-//        mediaPlayer = MediaPlayer.create(this, R.raw.sound_music);
         initMediaPlayer();
-
-
-
 
         // 设置点击通知结果
         Intent intent = new Intent(this, MainActivity.class);
-        /*
-         * Context context：上下文对象
-         * int requestCode：请求码
-         * Intent intent：intent桥梁
-         * int flags：
-         * FLAG_CANCEL_CURRENT：如果当前系统中已经存在一个相同的 PendingIntent 对象，那么就将先将已有的 PendingIntent 取消，然后重新生成一个 PendingIntent 对象。
-         * FLAG_NO_CREATE：如果当前系统中不存在相同的 PendingIntent 对象，系统将不会创建该 PendingIntent 对象而是直接返回 null 。
-         * FLAG_ONE_SHOT：该 PendingIntent 只作用一次。
-         * FLAG_UPDATE_CURRENT：如果系统中已存在该 PendingIntent 对象，那么系统将保留该 PendingIntent 对象，但是会使用新的 Intent 来更新之前 PendingIntent 中的 Intent 对象数据，例如更新 Intent 中的 Extras 。
-         */
         PendingIntent contentPendingIntent = PendingIntent.getActivity(this, CONTENT_PENDINGINTENT_REQUESTCODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
         Intent delIntent = new Intent(this, MediaPlayerService.class);
         PendingIntent delPendingIntent = PendingIntent.getService(this, DELETE_PENDINGINTENT_REQUESTCODE, delIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-//        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.test_bg);
-//        // 初始化Notification，Notification三要素：小图标、标题、内容
-//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-//                // 设置小图标，不展开时显示，当展开时现在在左侧
-//                .setSmallIcon(R.mipmap.ic_launcher)
-//                // 设置状态栏的显示的信息
-//                .setTicker("这是一个音频播放器")
-//                // 设置标题
-//                .setContentTitle("ZMediaPlayer")
-//                // 设置内容
-//                .setContentText("内容")
-//                // 设置通知时间，默认为系统发出通知的时间，通常不用设置
-//                .setWhen(System.currentTimeMillis())
-//                // 设置是否显示时间
-//                .setShowWhen(true)
-//                // 设置大图标-展开时一些手机上大图标会替换掉小图标
-//                .setLargeIcon(largeIcon)
-//                // 点击通知后自动清除
-//                .setAutoCancel(false)
-//                // 设置点击通知效果
-//                .setContentIntent(contentPendingIntent)
-//                // 设置删除时候出发的动作
-//                .setDeleteIntent(delPendingIntent)
-////                // 自定义视图
-////                .setContent(RemoteViews views)
-//                // 设置额外信息，一般显示在右下角
-//                .setContentInfo("额外信息");
-
-//        Notification notification = builder.build();
-//        // 获取NotificationManager实例
-//        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        // 发送通知，并设置id
-//        notificationManager.notify(id, notification);
-
 
         // 自定义布局
         views = new RemoteViews(getPackageName(), R.layout.layout_mediaplayer);
@@ -163,18 +90,8 @@ public class MediaPlayerService extends Service {
 
         // 获取NotificationManager实例
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        // 发送通知，并设置id
-//        notificationManager.notify(NOTIFICATION_PENDINGINTENT_ID, builder.build());
-
+        // 前台服务
         startForeground(NOTIFICATION_PENDINGINTENT_ID, builder.build());
-
-
-//        // 更新Notification
-//        notification = builder.setContentTitle("ZMediaPlayer111")
-//                // 设置内容
-//                .setContentText("内容111")
-//                .build();
-//        notificationManager.notify(id, notification);
 
         // 注册广播
         playerReceiver = new BroadcastReceiver() {
@@ -187,12 +104,10 @@ public class MediaPlayerService extends Service {
                         break;
                     case "playMusic":// 暂停/播放
                         if (mediaPlayer != null) {
-                            if (!isPause) {
+                            if (mediaPlayer.isPlaying()) {
                                 mediaPlayer.pause();
-                                isPause = true;
                             } else {
                                 mediaPlayer.start();
-                                isPause = false;
                             }
                         }
                         break;
@@ -207,6 +122,26 @@ public class MediaPlayerService extends Service {
         intentFilter.addAction("playMusic");
         intentFilter.addAction("stopMusic");
         registerReceiver(playerReceiver, intentFilter);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // 得到键值对
+        boolean playing = intent.getBooleanExtra("playing", false);
+        if (playing)
+            play();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mediaplayerBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        return super.onUnbind(intent);
     }
 
     @Override
@@ -231,21 +166,6 @@ public class MediaPlayerService extends Service {
         stopForeground(true);
         // 停止服务
         stopSelf();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // 得到键值对
-        boolean playing = intent.getBooleanExtra("playing", false);
-        if (playing)
-            play();
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Override
-    public IBinder onBind(Intent arg0) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     // 初始化MediaPlayer
@@ -296,26 +216,23 @@ public class MediaPlayerService extends Service {
         });
     }
 
-    // 播放
+    // 播发
     private void play() {
         try {
-            if (mediaPlayer == null)
-                initMediaPlayer();
-            if (isPause) {
-                mediaPlayer.start();
-                isPause = false;
-            } else {
-                // 重置mediaPlayer
-                mediaPlayer.reset();
-                // 重新加载音频资源
-                mediaPlayer.setDataSource(musics[current_item]);
-                // 准备播放（异步）
-                mediaPlayer.prepareAsync();
-            }
-            updateNotification();
-        } catch (IOException e) {
+            // 重置mediaPlayer
+            mediaPlayer.reset();
+            // 重新加载音频资源
+            mediaPlayer.setDataSource(musics[current_item]);
+            // 准备播放（异步）
+            mediaPlayer.prepareAsync();
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // 暂停
+    private void pause() {
+        mediaPlayer.pause();
     }
 
     // 下一首
@@ -324,6 +241,19 @@ public class MediaPlayerService extends Service {
         if (current_item >= musics.length)
             current_item = 0;
         play();
+    }
+
+    // 上一首
+    private void preMusic() {
+        current_item--;
+        if (current_item < 0)
+            current_item = musics.length - 1;
+        play();
+    }
+
+    // 停止
+    private void stop() {
+        mediaPlayer.stop();
     }
 
     // 更新Notification
@@ -342,4 +272,12 @@ public class MediaPlayerService extends Service {
         notificationManager.notify(NOTIFICATION_PENDINGINTENT_ID, builder.build());
     }
 
+    public class MediaplayerBinder extends Binder {
+
+        public Service getService() {
+            return MediplayerBinderService.this;
+        }
+    }
+
+    private MediaplayerBinder mediaplayerBinder = new MediaplayerBinder();
 }

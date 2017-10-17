@@ -2,15 +2,18 @@ package cc.ibooker.zmediaplayer;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -33,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BroadcastReceiver broadcastReceiver;
 //    private WifiManager.WifiLock wifiLock;
 
+    private MediplayerBinderService mediplayerBinderService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +48,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // 开启服务
         startMusicService(true);
+
+        // 绑定服务-onCreate->onBind->onUnbind->onDestroy
+        bindService();
 
 //        // 通过ContentResolver来获取外部媒体文件
 //        ContentResolver contentResolver = getContentResolver();
@@ -364,4 +372,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 停止服务
         // stopService(new Intent(MainActivity.this, MediaPlayerService.class));
     }
+
+    private void bindService() {
+        Intent intent = new Intent(MainActivity.this, MediplayerBinderService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void unBind() {
+//        if(flag == true){
+        unbindService(serviceConnection);
+//            flag = false;
+//        }
+    }
+
+    /**
+     * serviceConnection是一个ServiceConnection类型的对象，它是一个接口，用于监听所绑定服务的状态
+     */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        /**
+         * 点击开启按钮，会调用serviceConnection对象中的onServiceConnected方法。
+         * 向该方法传递一个IBinder对象
+         * ，其实际是从服务本身创建和提交的。这个IBinder对象将是SimpleAudioServiceBinder类型，我们将在服务中创建它。
+         * 它将有一个方法用于返回我们的服务本身，成为getService，这样我们就可以对该方法返回的对象直接进行操作。
+         */
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+//            simpleAudioService = (binder).getService();
+
+            MediplayerBinderService.MediaplayerBinder binder = (MediplayerBinderService.MediaplayerBinder) service;
+            MediplayerBinderService bindService = (MediplayerBinderService) binder.getService();
+//            bindService.MyMethod();
+//            flag = true;
+        }
+
+        /**
+         * 该方法用于处理与服务断开连接时的情况。
+         */
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+//            simpleAudioService = null;
+        }
+
+    };
 }
