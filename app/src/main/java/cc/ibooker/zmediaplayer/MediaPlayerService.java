@@ -1,5 +1,6 @@
 package cc.ibooker.zmediaplayer;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -7,6 +8,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
@@ -73,8 +76,6 @@ public class MediaPlayerService extends Service {
         initMediaPlayer();
 
 
-
-
         // 设置点击通知结果
         Intent intent = new Intent(this, MainActivity.class);
         /*
@@ -115,10 +116,12 @@ public class MediaPlayerService extends Service {
 //                .setContentIntent(contentPendingIntent)
 //                // 设置删除时候出发的动作
 //                .setDeleteIntent(delPendingIntent)
-////                // 自定义视图
-////                .setContent(RemoteViews views)
+//                // 自定义视图
+//                .setContent(RemoteViews views)
 //                // 设置额外信息，一般显示在右下角
-//                .setContentInfo("额外信息");
+//                .setContentInfo("额外信息")
+//                // 向通知添加声音、闪灯和振动效果的最简单、最一致的方式是使用当前的用户默认设置，使用defaults属性，可以组合
+//                .setDefaults(Notification.DEFAULT_VIBRATE);
 
 //        Notification notification = builder.build();
 //        // 获取NotificationManager实例
