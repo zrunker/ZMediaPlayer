@@ -76,7 +76,6 @@ public class MediaPlayerService extends Service {
 
 
 
-
         // 设置点击通知结果
         Intent intent = new Intent(this, MainActivity.class);
         /*

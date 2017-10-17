@@ -44,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 开启服务
         startMusicService(true);
 
-
 //        // 通过ContentResolver来获取外部媒体文件
 //        ContentResolver contentResolver = getContentResolver();
 //        Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
