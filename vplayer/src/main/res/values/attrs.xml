@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MKVideoView">
+        <attr name="isBindController" format="boolean" />
+    </declare-styleable>
+    <declare-styleable name="MediaView">
+        <attr name="isAutoSize" format="boolean" />
+        <attr name="isZOrderOnTop" format="boolean" />
+    </declare-styleable>
+    <declare-styleable name="MKController">
+        <attr name="isShowSkipPrevious" format="boolean" />
+        <attr name="isShowSkipNext" format="boolean" />
+        <attr name="isShowFastRewind" format="boolean" />
+        <attr name="isShowFastForward" format="boolean" />
+    </declare-styleable>
+</resources>
