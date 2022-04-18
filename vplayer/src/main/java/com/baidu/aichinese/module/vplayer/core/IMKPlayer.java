@@ -1,4 +1,4 @@
-package com.baidu.aichinese.module.vplayer.core;
+package cc.ibooker.maoker.vplayer.core;
 
 import android.view.SurfaceHolder;
 

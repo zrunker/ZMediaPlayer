@@ -1,4 +1,4 @@
-package com.baidu.aichinese.module.vplayer;
+package cc.ibooker.maoker.vplayer;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.baidu.aichinese.module.vplayer.test", appContext.getPackageName());
+        assertEquals("cc.ibooker.maoker.vplayer.test", appContext.getPackageName());
     }
 }

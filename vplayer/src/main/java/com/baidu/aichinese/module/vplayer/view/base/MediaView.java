@@ -1,4 +1,4 @@
-package com.baidu.aichinese.module.vplayer.view.base;
+package cc.ibooker.maoker.vplayer.view.base;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -8,10 +8,10 @@ import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.baidu.aichinese.module.vplayer.R;
-import com.baidu.aichinese.module.vplayer.core.MKPlayer;
-import com.baidu.aichinese.module.vplayer.core.listener.MKErrorListener;
-import com.baidu.aichinese.module.vplayer.view.controller.IMKController;
+import cc.ibooker.maoker.vplayer.R;
+import cc.ibooker.maoker.vplayer.core.MKPlayer;
+import cc.ibooker.maoker.vplayer.core.listener.MKErrorListener;
+import cc.ibooker.maoker.vplayer.view.controller.IMKController;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 

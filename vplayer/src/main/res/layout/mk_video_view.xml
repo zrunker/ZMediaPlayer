@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <com.baidu.aichinese.module.vplayer.view.base.MediaView
+    <cc.ibooker.maoker.vplayer.view.base.MediaView
         android:id="@+id/media_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

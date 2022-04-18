@@ -1,6 +1,6 @@
-package com.baidu.aichinese.module.vplayer.core.listener;
+package cc.ibooker.maoker.vplayer.core.listener;
 
-import com.baidu.aichinese.module.vplayer.utils.ErrorTrans;
+import cc.ibooker.maoker.vplayer.utils.ErrorTrans;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 

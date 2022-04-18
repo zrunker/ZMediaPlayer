@@ -1,13 +1,13 @@
-package com.baidu.aichinese.module.vplayer.core;
+package cc.ibooker.maoker.vplayer.core;
 
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
 
-import com.baidu.aichinese.module.vplayer.core.listener.IMKListener;
-import com.baidu.aichinese.module.vplayer.core.listener.MKListener;
-import com.baidu.aichinese.module.vplayer.core.option.IMKOption;
-import com.baidu.aichinese.module.vplayer.core.option.MKOption;
+import cc.ibooker.maoker.vplayer.core.listener.IMKListener;
+import cc.ibooker.maoker.vplayer.core.listener.MKListener;
+import cc.ibooker.maoker.vplayer.core.option.IMKOption;
+import cc.ibooker.maoker.vplayer.core.option.MKOption;
 
 import java.io.IOException;
 

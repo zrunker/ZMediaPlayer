@@ -1,4 +1,4 @@
-package com.baidu.aichinese.module.vplayer.core.listener;
+package cc.ibooker.maoker.vplayer.core.listener;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 

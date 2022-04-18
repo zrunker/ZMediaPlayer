@@ -1,4 +1,4 @@
-package com.baidu.aichinese.module.vplayer.view;
+package cc.ibooker.maoker.vplayer.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -8,11 +8,11 @@ import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
-import com.baidu.aichinese.module.vplayer.R;
-import com.baidu.aichinese.module.vplayer.core.listener.MKErrorListener;
-import com.baidu.aichinese.module.vplayer.utils.ErrorTrans;
-import com.baidu.aichinese.module.vplayer.view.base.MediaView;
-import com.baidu.aichinese.module.vplayer.view.controller.MKController;
+import cc.ibooker.maoker.vplayer.R;
+import cc.ibooker.maoker.vplayer.core.listener.MKErrorListener;
+import cc.ibooker.maoker.vplayer.utils.ErrorTrans;
+import cc.ibooker.maoker.vplayer.view.base.MediaView;
+import cc.ibooker.maoker.vplayer.view.controller.MKController;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 

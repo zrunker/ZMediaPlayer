@@ -1,4 +1,4 @@
-package com.baidu.aichinese.module.vplayer.view.controller;
+package cc.ibooker.maoker.vplayer.view.controller;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -24,8 +24,8 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.baidu.aichinese.module.vplayer.R;
-import com.baidu.aichinese.module.vplayer.view.base.MediaView;
+import cc.ibooker.maoker.vplayer.R;
+import cc.ibooker.maoker.vplayer.view.base.MediaView;
 
 import java.lang.ref.WeakReference;
 

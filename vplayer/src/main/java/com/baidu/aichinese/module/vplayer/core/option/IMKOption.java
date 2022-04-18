@@ -1,4 +1,4 @@
-package com.baidu.aichinese.module.vplayer.core.option;
+package cc.ibooker.maoker.vplayer.core.option;
 
 /**
  * @program: AIChinese

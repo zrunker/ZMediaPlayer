@@ -1,4 +1,4 @@
-package com.baidu.aichinese.module.vplayer.utils;
+package cc.ibooker.maoker.vplayer.utils;
 
 import static tv.danmaku.ijk.media.player.IMediaPlayer.MEDIA_ERROR_IO;
 import static tv.danmaku.ijk.media.player.IMediaPlayer.MEDIA_ERROR_MALFORMED;

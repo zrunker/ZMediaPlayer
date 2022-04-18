@@ -1,10 +1,10 @@
-package com.baidu.aichinese.module.vplayer.view.base;
+package cc.ibooker.maoker.vplayer.view.base;
 
 import android.view.SurfaceHolder;
 
-import com.baidu.aichinese.module.vplayer.core.IMKPlayer;
-import com.baidu.aichinese.module.vplayer.core.listener.IMKListener;
-import com.baidu.aichinese.module.vplayer.view.controller.IMKController;
+import cc.ibooker.maoker.vplayer.core.IMKPlayer;
+import cc.ibooker.maoker.vplayer.core.listener.IMKListener;
+import cc.ibooker.maoker.vplayer.view.controller.IMKController;
 
 /**
  * @program: AIChinese

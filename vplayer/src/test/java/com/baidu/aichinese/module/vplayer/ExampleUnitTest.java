@@ -1,4 +1,4 @@
-package com.baidu.aichinese.module.vplayer;
+package cc.ibooker.maoker.vplayer;
 
 import org.junit.Test;
 

@@ -1,6 +1,6 @@
-package com.baidu.aichinese.module.vplayer.view.controller;
+package cc.ibooker.maoker.vplayer.view.controller;
 
-import com.baidu.aichinese.module.vplayer.view.base.MediaView;
+import cc.ibooker.maoker.vplayer.view.base.MediaView;
 
 /**
  * @program: AIChinese
