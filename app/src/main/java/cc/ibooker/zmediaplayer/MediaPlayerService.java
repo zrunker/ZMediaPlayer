@@ -1,6 +1,5 @@
 package cc.ibooker.zmediaplayer;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -8,20 +7,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.widget.RemoteViews;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * 前台服务
@@ -43,7 +37,7 @@ public class MediaPlayerService extends Service {
     private MediaPlayer mediaPlayer;
     private WifiManager.WifiLock wifiLock;
 
-    private String[] musics = {"http://ibooker.cc/ibooker/file_packet/musics/1234.mp3",
+    private final String[] musics = {"http://ibooker.cc/ibooker/file_packet/musics/1234.mp3",
             "http://ibooker.cc/ibooker/file_packet/musics/2345.mp3"}; // 设置音频资源（网络）
     private int current_item = 0;
     private boolean isPause = false;

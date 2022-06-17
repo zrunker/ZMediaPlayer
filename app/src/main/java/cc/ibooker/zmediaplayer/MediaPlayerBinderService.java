@@ -34,7 +34,7 @@ public class MediaPlayerBinderService extends Service {
     private NotificationCompat.Builder builder;
     private RemoteViews views;
 
-    private String[] musics = {"http://ibooker.cc/ibooker/file_packet/musics/1234.mp3",
+    private final String[] musics = {"http://ibooker.cc/ibooker/file_packet/musics/1234.mp3",
             "http://ibooker.cc/ibooker/file_packet/musics/2345.mp3"}; // 设置音频资源（网络）
     private int current_item = 0;
     private boolean isPause = false;
