@@ -1,1 +1,1 @@
-include ':app', ':avplayerlib'
+include ':app'

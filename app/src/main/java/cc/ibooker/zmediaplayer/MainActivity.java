@@ -1,5 +1,6 @@
 package cc.ibooker.zmediaplayer;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -14,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -25,6 +27,10 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * 测试机型 Android 7.0
+ *
+ */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private MediaPlayer mediaPlayer;
     private final String[] musics = {"http://ibooker.cc/ibooker/file_packet/musics/1234.mp3",
@@ -211,28 +217,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             switch (focusChange) {
                 case AudioManager.AUDIOFOCUS_GAIN:
                     // 获取audio focus
-                    if (mediaPlayer == null)
+                    if (mediaPlayer == null) {
                         mediaPlayer = new MediaPlayer();
-                    else if (!mediaPlayer.isPlaying())
+                    } else if (!mediaPlayer.isPlaying()) {
                         mediaPlayer.start();
+                    }
                     mediaPlayer.setVolume(1.0f, 1.0f);
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS:
                     // 失去audio focus很长一段时间，必须停止所有的audio播放，清理资源
-                    if (mediaPlayer.isPlaying())
+                    if (mediaPlayer.isPlaying()) {
                         mediaPlayer.stop();
+                    }
                     mediaPlayer.release();
                     mediaPlayer = null;
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                     // 暂时失去audio focus，但是很快就会重新获得，在此状态应该暂停所有音频播放，但是不能清除资源
-                    if (mediaPlayer.isPlaying())
+                    if (mediaPlayer.isPlaying()) {
                         mediaPlayer.pause();
+                    }
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                     // 暂时失去 audio focus，但是允许持续播放音频(以很小的声音)，不需要完全停止播放。
-                    if (mediaPlayer.isPlaying())
+                    if (mediaPlayer.isPlaying()) {
                         mediaPlayer.setVolume(0.1f, 0.1f);
+                    }
                     break;
             }
         }
@@ -279,6 +289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     // 点击事件监听
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -384,9 +395,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
-        private WeakReference<Activity> mActivity;
+        private final WeakReference<Activity> mActivity;
 
         MyHandler(Activity activity) {
+            super(Looper.getMainLooper());
             mActivity = new WeakReference<>(activity);
         }
 
@@ -395,11 +407,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             super.handleMessage(msg);
             MainActivity currentActivity = (MainActivity) mActivity.get();
 
-            switch (msg.what) {
-                case 100:
-                    if (currentActivity.mediaPlayer != null)
-                        currentActivity.descTv.setText("播放进度：" + currentActivity.mediaPlayer.getCurrentPosition() * 100 / currentActivity.mediaPlayer.getDuration() + "%");
-                    break;
+            if (msg.what == 100) {
+                if (currentActivity.mediaPlayer != null)
+                    currentActivity.descTv.setText("播放进度：" + currentActivity.mediaPlayer.getCurrentPosition() * 100 / currentActivity.mediaPlayer.getDuration() + "%");
             }
         }
     }
@@ -439,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * serviceConnection是一个ServiceConnection类型的对象，它是一个接口，用于监听所绑定服务的状态
      */
-    private ServiceConnection serviceConnection = new ServiceConnection() {
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
         /**
          * 该方法用于处理与服务已连接时的情况。
          */
