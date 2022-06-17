@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private MediaPlayer mediaPlayer;
-    private String[] musics = {"http://ibooker.cc/ibooker/file_packet/musics/1234.mp3",
+    private final String[] musics = {"http://ibooker.cc/ibooker/file_packet/musics/1234.mp3",
             "http://ibooker.cc/ibooker/file_packet/musics/2345.mp3"}; // 设置音频资源（网络）
     private TextView descTv;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BroadcastReceiver broadcastReceiver;
 //    private WifiManager.WifiLock wifiLock;
 
-    private MediaplayerBinderService bindService;
+    private MediaPlayerBinderService bindService;
     private boolean isBindService = false;
     private BroadcastReceiver playerReceiver;
 
@@ -418,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // 绑定服务
     private void bindService() {
         if (!isBindService) {
-            Intent intent = new Intent(MainActivity.this, MediaplayerBinderService.class);
+            Intent intent = new Intent(MainActivity.this, MediaPlayerBinderService.class);
             /*
              * Service：Service的桥梁
              * ServiceConnection：处理链接状态
@@ -445,8 +445,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          */
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            MediaplayerBinderService.MediaplayerBinder binder = (MediaplayerBinderService.MediaplayerBinder) service;
-            bindService = (MediaplayerBinderService) binder.getService();
+            MediaPlayerBinderService.MediaplayerBinder binder = (MediaPlayerBinderService.MediaplayerBinder) service;
+            bindService = (MediaPlayerBinderService) binder.getService();
             isBindService = true;
         }
 
